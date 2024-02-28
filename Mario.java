@@ -55,7 +55,8 @@ public class Mario {
     private static double p1height;
     private static double p1originalX;
     private static double p1originalY;
-    private static double p1velocity;
+    private static double p1velocityX;
+    private static double p1velocityY;
 
     private static int level;
 
@@ -98,7 +99,7 @@ public class Mario {
         XOFFSET = 0;
         YOFFSET = 30;
         WINWIDTH = 338;
-        WINHEIGHT = 271;
+        WINHEIGHT = 251; //271
         pi = 3.1459265358979;
         quarterPi = 0.25 * pi;
         halfPi = 0.5 * pi;
@@ -126,20 +127,21 @@ public class Mario {
                     ImageIO.read(new File("images\\Orange6.png")), ImageIO.read(new File("images\\Orange7.png"))};
 
             // setting up the Koholint Island walls and their collisions
-//            walls = new Vector<Vector<Vector<ImageObject>>>(); // diff version of ImageObj than Asteroids
-//            for (int i = 0; i < ydimKI; i++) {
-//                Vector<Vector<ImageObject>> temp = new Vector<Vector<ImageObject>>();
-//                for (int j = 0; j < xdimKI; j++) {
-//                    Vector<ImageObject> tempWalls = new Vector<ImageObject>();
-//                    temp.addElement(tempWalls);
-//                }
-//                walls.add(temp);
-//            }
+            walls = new Vector<Vector<Vector<ImageObject>>>(); // diff version of ImageObj than Asteroids
+            for (int i = 0; i < background.getHeight(); i++) {
+                Vector<Vector<ImageObject>> temp = new Vector<Vector<ImageObject>>();
+                for (int j = 0; j < background.getWidth(); j++) {
+                    Vector<ImageObject> tempWalls = new Vector<ImageObject>();
+                    temp.addElement(tempWalls);
+                }
+                walls.add(temp);
+            }
 
-//            for (int i = 0; i < walls.size(); i++) {
-//                for (int j = 0; j < walls.elementAt(i).size(); j++) {
-//                    if (i == 0 && j == 0) {
-//                        //338x271 window size
+            for (int i = 0; i < walls.size(); i++) {
+                for (int j = 0; j < walls.elementAt(i).size(); j++) {
+                    if (i == 0 && j == 0) {
+                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(0, 241, 338, 10, 0.0));
+                        //338x271 window size
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(0, 0, 100, 400, 0.0));
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(0, 0, 400, 75, 0.0));
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(0, 260, 400, 100, 0.0));
@@ -149,9 +151,9 @@ public class Mario {
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(240, 75, 100, 100, 0.0));
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(200, 130, 100, 50, 0.0));
 //                        walls.elementAt(i).elementAt(j).addElement(new ImageObject(100, 130, 60, 50, 0.0));
-//                    }
-//                }
-//            }
+                    }
+                }
+            }
 
             player = ImageIO.read(new File("images\\Orange0.png"));
 
@@ -226,10 +228,12 @@ public class Mario {
     }
 
     private static class PlayerMover implements Runnable {
-        private double velocitystep;
+        private double velocitystepX;
+        private double velocitystepY;
 
         public PlayerMover() {
-            velocitystep = 1;
+            velocitystepX = 2;
+            velocitystepY = 5;
         }
 
         public void run() {
@@ -239,7 +243,14 @@ public class Mario {
                 } catch (InterruptedException e) { }
 
                 if (upPressed || downPressed || leftPressed || rightPressed) {
-                    p1velocity = velocitystep;
+                    p1velocityY = velocitystepY;
+                    p1velocityX = velocitystepX;
+                    if (p1velocityY > 5) {
+                        p1velocityY = 5;
+                    }
+                    if (p1velocityX > 5) {
+                        p1velocityX = 5;
+                    }
                     if (upPressed) {
                         if (leftPressed) {
                             p1.setInternalAngle(fivequartersPi);
@@ -277,12 +288,19 @@ public class Mario {
                         }
                     }
                 } else {
-                    p1velocity = 0.0;
+                    p1velocityX = 0.0;
+                    p1velocityY = 0.0;
                     p1.setInternalAngle(threehavlesPi);
                 }
 
                 p1.updateBounce();
-                p1.move(p1velocity * Math.cos(p1.getInternalAngle()), p1velocity * Math.sin(p1.getInternalAngle()));
+                // the 0.25 is the gravity
+                // if statement is to stop player from getting pinned to the ground
+                if (p1.getY() < 220) {
+                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.5);
+                } else {
+                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()));
+                }
                 int wrap = p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
 //                backgroundState = bgWrap(backgroundState, wrap);
                 if (wrap != 0) {
@@ -391,14 +409,27 @@ public class Mario {
         }
     }
 
+    public static class Gravity implements Runnable {
+        public void run() {
+            while (endgame == false) {
+                // gravity is set in player mover right now
+//                p1.move(p1.getX(), p1.getY() + 0.5);
+//                System.out.println("X: " + p1.getX() + " Y: " + p1.getY());
+//                p1.move(Math.cos(p1.getInternalAngle()) - 0.1, Math.sin(p1.getInternalAngle()) - 0.1);
+            }
+        }
+    }
+
     private static class CollisionChecker implements Runnable {
         public void run() {
             // Random randomNumbers = new Random(LocalTime.now().getNano());
             while (endgame == false) {
+
                 // check player and enemies against walls
-                if (backgroundState.substring(0, 6).equals("KI0000")) {
-                    checkMoversAgainstWalls(walls.elementAt(0).elementAt(0));
-                }
+                checkMoversAgainstWalls(walls.elementAt(0).elementAt(0));
+//                if (backgroundState.substring(0, 6).equals("KI0000")) {
+//                    checkMoversAgainstWalls(walls.elementAt(0).elementAt(0));
+//                }
 
                 // check player against enemies
 //                for (int i = 0; i < bluepigEnemies.size(); i++) {
@@ -723,7 +754,8 @@ public class Mario {
             } catch (java.lang.NullPointerException jlnpe) { }
 
             p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0);
-            p1velocity = 0.0;
+            p1velocityX = 0.0;
+            p1velocityY = 0.0;
             p1.setInternalAngle(threehavlesPi); // 270 degrees, in radians
             p1.setMaxFrames(2);
             p1.setlastposx(p1originalX);
@@ -745,12 +777,14 @@ public class Mario {
             Thread t4 = new Thread(new AudioLooper());
 //            Thread t5 = new Thread(new EnemyMover());
             Thread t6 = new Thread(new HealthTracker());
+            Thread t7 = new Thread(new Gravity());
             t1.start();
             t2.start();
             t3.start();
             t4.start();
 //            t5.start();
             t6.start();
+            t7.start();
         }
     }
 
