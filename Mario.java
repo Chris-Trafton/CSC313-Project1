@@ -9,11 +9,12 @@ import java.io.IOException;
 public class Mario {
     private static final int WIN_WIDTH = 286;
     private static final int WIN_HEIGHT = 286;
+    private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 
     private static JFrame frame;
 
     private static BufferedImage background;
-    private static int xPos;
+    private static float xPos;
 
     private static boolean upPressed;
     private static boolean downPressed;
@@ -21,11 +22,8 @@ public class Mario {
     private static boolean rightPressed;
     private static boolean spacePressed;
 
-    private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
-
     public static void main(String[] args) {
         setup();
-
 
         JPanel myPanel = new JPanel();
 
@@ -77,10 +75,10 @@ public class Mario {
         Graphics g = frame.getGraphics();
         Graphics2D g2d = (Graphics2D) g;
 
-        if (rightPressed) xPos -= 1;
-        if (leftPressed) xPos += 1;
+        if (rightPressed && xPos > -3180) xPos -= 0.8f;
+//        if (leftPressed && xPos < 0) xPos += 0.8f;
 
-        g2d.drawImage(background, xPos, 30, null);
+        g2d.drawImage(background, (int)xPos, 30, null);
     }
 
     private static void bindKey(JPanel myPanel, String input) {
