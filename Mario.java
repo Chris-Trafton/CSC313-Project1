@@ -88,6 +88,8 @@ public class Mario {
 
     private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 
+    private static JFrame frame;
+
     public Mario() {
         setup();
     }
@@ -296,17 +298,22 @@ public class Mario {
                 p1.updateBounce();
                 // the 0.25 is the gravity
                 // if statement is to stop player from getting pinned to the ground
+                if (p1.getX() > 250 && rightPressed) {
+                    p1velocityX = 0;
+                } else if (p1.getX() < 88 && leftPressed) {
+                    p1velocityX = 0;
+                }
                 if (p1.getY() < 220) {
                     p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.5);
                 } else {
                     p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()));
                 }
-                int wrap = p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+//                int wrap = p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
 //                backgroundState = bgWrap(backgroundState, wrap);
-                if (wrap != 0) {
-//                    clearEnemies();
-                    generateEnemies(backgroundState);
-                }
+//                if (wrap != 0) {
+////                    clearEnemies();
+//                    generateEnemies(backgroundState);
+//                }
             }
         }
     }
@@ -500,14 +507,21 @@ public class Mario {
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-
-        int i = Integer.parseInt(backgroundState.substring(4, 6));
-        int j = Integer.parseInt(backgroundState.substring(2, 4));
-        if (i < 3) {
-            if (j < 2) {
-                g2D.drawImage(background, XOFFSET, YOFFSET, null);
-            }
+        g2D.drawImage(background, XOFFSET, YOFFSET, null);
+        if (p1.getX() > 250 && rightPressed) {
+            System.out.println(p1.getX());
+            XOFFSET -= 10;
+//            g2D.drawImage(background, XOFFSET + 100, YOFFSET, null);
+        } else if (p1.getX() < 88 && leftPressed) {
+            XOFFSET += 10;
         }
+//        int i = Integer.parseInt(backgroundState.substring(4, 6));
+//        int j = Integer.parseInt(backgroundState.substring(2, 4));
+//        if (i < 3) {
+//            if (j < 2) {
+//                g2D.drawImage(background, XOFFSET, YOFFSET, null);
+//            }
+//        }
     }
 
     private static void playerDraw() {
