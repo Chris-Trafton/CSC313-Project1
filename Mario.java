@@ -190,7 +190,7 @@ public class Mario {
                 backgroundDraw();
 //                enemiesDraw();
                 playerDraw();
-                healthDraw();
+//                healthDraw();
 
                 try {
                     Thread.sleep(32);
@@ -245,10 +245,11 @@ public class Mario {
                 } catch (InterruptedException e) { }
 
                 if (upPressed || downPressed || leftPressed || rightPressed) {
-                    p1velocityY = velocitystepY;
+                    p1velocityY = 12;
+//                    p1velocityY = velocitystepY;
                     p1velocityX = velocitystepX;
-                    if (p1velocityY > 5) {
-                        p1velocityY = 5;
+                    if (p1velocityY > 12) {
+                        p1velocityY = 12;
                     }
                     if (p1velocityX > 5) {
                         p1velocityX = 5;
@@ -304,7 +305,7 @@ public class Mario {
                     p1velocityX = 0;
                 }
                 if (p1.getY() < 220) {
-                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.5);
+                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.75);
                 } else {
                     p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()));
                 }
@@ -416,17 +417,6 @@ public class Mario {
         }
     }
 
-    public static class Gravity implements Runnable {
-        public void run() {
-            while (endgame == false) {
-                // gravity is set in player mover right now
-//                p1.move(p1.getX(), p1.getY() + 0.5);
-//                System.out.println("X: " + p1.getX() + " Y: " + p1.getY());
-//                p1.move(Math.cos(p1.getInternalAngle()) - 0.1, Math.sin(p1.getInternalAngle()) - 0.1);
-            }
-        }
-    }
-
     private static class CollisionChecker implements Runnable {
         public void run() {
             // Random randomNumbers = new Random(LocalTime.now().getNano());
@@ -508,8 +498,8 @@ public class Mario {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(background, XOFFSET, YOFFSET, null);
+        System.out.println(XOFFSET);
         if (p1.getX() > 250 && rightPressed) {
-            System.out.println(p1.getX());
             XOFFSET -= 10;
 //            g2D.drawImage(background, XOFFSET + 100, YOFFSET, null);
         } else if (p1.getX() < 88 && leftPressed) {
@@ -706,6 +696,12 @@ public class Mario {
         public void actionPerformed(ActionEvent e) {
             if (action.equals("UP")) {
                 upPressed = true;
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                upPressed = false;
                 lastPressed = 90.0;
             }
             if (action.equals("DOWN")) {
@@ -790,15 +786,13 @@ public class Mario {
             Thread t3 = new Thread(new CollisionChecker());
             Thread t4 = new Thread(new AudioLooper());
 //            Thread t5 = new Thread(new EnemyMover());
-            Thread t6 = new Thread(new HealthTracker());
-            Thread t7 = new Thread(new Gravity());
+//            Thread t6 = new Thread(new HealthTracker());
             t1.start();
             t2.start();
             t3.start();
             t4.start();
 //            t5.start();
-            t6.start();
-            t7.start();
+//            t6.start();
         }
     }
 
