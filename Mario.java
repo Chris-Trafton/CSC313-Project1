@@ -216,7 +216,8 @@ public class Mario {
         }
 
         try {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new File("audio\\TitleKI.wav").getAbsoluteFile());
+//            AudioInputStream ais = AudioSystem.getAudioInputStream(new File("audio\\TitleKI.wav").getAbsoluteFile());
+            AudioInputStream ais = AudioSystem.getAudioInputStream(new File("audio/Super Mario NES Bkgd Music.wav"));
             clip = AudioSystem.getClip();
             clip.open(ais);
             clip.start();
