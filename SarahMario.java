@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.nio.channels.SelectableChannel;
 import java.util.Vector;
 import java.util.Random;
@@ -15,9 +16,6 @@ import java.io.IOException;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -40,8 +38,8 @@ public class SarahMario {
     private static BufferedImage rightHeartOutline;
     private static BufferedImage leftHeart;
     private static BufferedImage rightHeart;
-    private static Vector<BufferedImage> bluepigEnemy;
-    private static Vector<ImageObject> bluepigEnemies;
+    private static Vector<BufferedImage> goomba;
+    private static Vector<ImageObject> goombas;
     private static Vector<ImageObject> bubblebossEnemies;
 
     private static Boolean upPressed;
@@ -58,6 +56,9 @@ public class SarahMario {
     private static double p1velocityX;
     private static double p1velocityY;
 
+    private static double goombawidth;
+    private static double goombaheight;
+
     private static int level;
 
     private static Long audiolifetime;
@@ -71,6 +72,7 @@ public class SarahMario {
     private static int YOFFSET;
     private static int WINWIDTH;
     private static int WINHEIGHT;
+    private static int backgroundX;
 
     private static double pi;
     private static double quarterPi;
@@ -100,6 +102,7 @@ public class SarahMario {
         YOFFSET = 30;
         WINWIDTH = 338;
         WINHEIGHT = 251; //271
+        backgroundX = 0;
         pi = 3.1459265358979;
         quarterPi = 0.25 * pi;
         halfPi = 0.5 * pi;
@@ -113,6 +116,8 @@ public class SarahMario {
         p1height = 20; // 25;
         p1originalX = (double)XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p1originalY = (double)YOFFSET + ((double)WINHEIGHT / 2.0) - (p1height / 2.0);
+        goombawidth = 20;
+        goombaheight = 20;
         level = 3;
         audiolifetime = 78000L; // 78 seconds for KI.WAV, was new Long(78000)
         dropLifeLifetime = 1000L; // 1 second
@@ -158,19 +163,15 @@ public class SarahMario {
             player = ImageIO.read(new File("images\\Orange0.png"));
 
             // BluePig Enemy's images
-            bluepigEnemies = new Vector<ImageObject>();
-            bluepigEnemy = new Vector<BufferedImage>();
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Up_1.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Up_1.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Down_1.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Down_2.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Left_1.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Left_2.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Right_1.png")));
-            bluepigEnemy.addElement(ImageIO.read(new File("images\\Pig_Right_2.png")));
+            goombas = new Vector<ImageObject>();
+            goomba = new Vector<BufferedImage>();
+            goomba.addElement(ImageIO.read(new File("images/Goomba.png")));
+            double goombaX = (double)XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
+            double goombaY = (double)YOFFSET + ((double)WINHEIGHT / 2.0) - (p1height / 2.0);
+            ImageObject goomba1 = new ImageObject(goombaX, goombaY, goombawidth, goombaheight, 0.0);
 
             // BubbleBoss Enemies
-            bubblebossEnemies = new Vector<ImageObject>();
+//            bubblebossEnemies = new Vector<ImageObject>();
 
             // Health images
             leftHeartOutline = ImageIO.read(new File("images\\Small_Heart_LeftHalf.png"));
@@ -186,6 +187,7 @@ public class SarahMario {
         public void run() {
             while (endgame == false) {
                 backgroundDraw();
+                enemyDraw();
 //                enemiesDraw();
                 playerDraw();
                 healthDraw();
@@ -195,6 +197,19 @@ public class SarahMario {
                 } catch (InterruptedException e) { }
             }
         }
+    }
+
+    private static void enemyDraw() {
+//        System.out.println("Drew enemies");
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+
+        for (int i = 0; i < goombas.size(); i++) {
+            goombas.elementAt(i).setMaxFrames(10);
+            g2D.drawImage(goomba.elementAt(0), WINHEIGHT - XOFFSET*2, YOFFSET, null);
+        }
+
+
     }
 
     private static class AudioLooper implements Runnable {
@@ -313,18 +328,18 @@ public class SarahMario {
     }
 
     private static void clearEnemies() {
-        bluepigEnemies.clear();
+        goombas.clear();
         bubblebossEnemies.clear();
     }
 
     private static void generateEnemies(String backgroundState) {
         if (backgroundState.substring(0, 6).equals("KI0809")) {
-            bluepigEnemies.addElement(new ImageObject(20, 90, 33, 33, 0.0));
-            bluepigEnemies.addElement(new ImageObject(250, 230, 33, 33, 0.0));
+            goombas.addElement(new ImageObject(20, 90, 33, 33, 0.0));
+            goombas.addElement(new ImageObject(250, 230, 33, 33, 0.0));
         }
 
-        for (int i = 0; i < bluepigEnemies.size(); i++) {
-            bluepigEnemies.elementAt(i).setMaxFrames(25);
+        for (int i = 0; i < goombas.size(); i++) {
+            goombas.elementAt(i).setMaxFrames(25);
         }
     }
 
@@ -347,35 +362,35 @@ public class SarahMario {
 
                 // TODO
                 try {
-                    for (int i = 0; i < bluepigEnemies.size(); i++) {
+                    for (int i = 0; i < goombas.size(); i++) {
                         int state = randomNumbers.nextInt(1000);
                         if (state < 5) {
                             bluepigvelocity = bluepigvelocitystep;
-                            bluepigEnemies.elementAt(i).setInternalAngle(0);
+                            goombas.elementAt(i).setInternalAngle(0);
                         } else if (state < 10) {
                             bluepigvelocity = bluepigvelocitystep;
-                            bluepigEnemies.elementAt(i).setInternalAngle(halfPi);
+                            goombas.elementAt(i).setInternalAngle(halfPi);
                         } else if (state < 15) {
                             bluepigvelocity = bluepigvelocitystep;
-                            bluepigEnemies.elementAt(i).setInternalAngle(pi);
+                            goombas.elementAt(i).setInternalAngle(pi);
                         } else if (state < 20) {
                             bluepigvelocity = bluepigvelocitystep;
-                            bluepigEnemies.elementAt(i).setInternalAngle(threehavlesPi);
+                            goombas.elementAt(i).setInternalAngle(threehavlesPi);
                         } else if (state < 250) {
                             bluepigvelocity = bluepigvelocitystep;
                         } else {
                             bluepigvelocity = 0;
                         }
 
-                        bluepigEnemies.elementAt(i).updateBounce();
-                        bluepigEnemies.elementAt(i).move(bluepigvelocity *
-                                        Math.cos(bluepigEnemies.elementAt(i).getInternalAngle()),
-                                bluepigvelocity * Math.sin(bluepigEnemies.elementAt(i).getInternalAngle()));
+                        goombas.elementAt(i).updateBounce();
+                        goombas.elementAt(i).move(bluepigvelocity *
+                                        Math.cos(goombas.elementAt(i).getInternalAngle()),
+                                bluepigvelocity * Math.sin(goombas.elementAt(i).getInternalAngle()));
                     }
 
-                    for (int i = 0; i < bubblebossEnemies.size(); i++) {
-
-                    }
+//                    for (int i = 0; i < bubblebossEnemies.size(); i++) {
+//
+//                    }
                 } catch (java.lang.NullPointerException jlnpe) {
                     // NOP
                 }
@@ -433,16 +448,16 @@ public class SarahMario {
 //                }
 
                 // check player against enemies
-//                for (int i = 0; i < bluepigEnemies.size(); i++) {
-//                    if (Zelda.GameLevel.collisionOccurs(p1, bluepigEnemies.elementAt(i))) {
-//                        // System.out.println("Still Colliding: " + i + ", " + System.currentTimeMllis());
-//                        p1.setBounce(true);
-//                        bluepigEnemies.elementAt(i).setBounce(true);
-//                        if (availableToDropLife) {
-//                            p1.setDropLife(1);
-//                        }
-//                    }
-//                }
+                for (int i = 0; i < goombas.size(); i++) {
+                    if (GameLevel.collisionOccurs(p1, goombas.elementAt(i))) {
+                        // System.out.println("Still Colliding: " + i + ", " + System.currentTimeMllis());
+                        p1.setBounce(true);
+                        goombas.elementAt(i).setBounce(true);
+                        if (availableToDropLife) {
+                            p1.setDropLife(1);
+                        }
+                    }
+                }
 
                 // TODO: check enemies against walls
                 // TODO: check player against deep water or pits
@@ -457,9 +472,9 @@ public class SarahMario {
                 if (GameLevel.collisionOccurs(p1, wallsInput.elementAt(i))) {
                     p1.setBounce(true);
                 }
-                for (int j = 0; j < bluepigEnemies.size(); j++) {
-                    if (GameLevel.collisionOccurs(bluepigEnemies.elementAt(j), wallsInput.elementAt(i))) {
-                        bluepigEnemies.elementAt(j).setBounce(true);
+                for (int j = 0; j < goombas.size(); j++) {
+                    if (GameLevel.collisionOccurs(goombas.elementAt(j), wallsInput.elementAt(i))) {
+                        goombas.elementAt(j).setBounce(true);
                     }
                 }
             }
@@ -502,13 +517,8 @@ public class SarahMario {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
 
-        int i = Integer.parseInt(backgroundState.substring(4, 6));
-        int j = Integer.parseInt(backgroundState.substring(2, 4));
-        if (i < 3) {
-            if (j < 2) {
-                g2D.drawImage(background, XOFFSET, YOFFSET, null);
-            }
-        }
+        g2D.drawImage(background, XOFFSET, YOFFSET, null);
+
     }
 
     private static void playerDraw() {
@@ -632,54 +642,54 @@ public class SarahMario {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
 
-        for (int i = 0; i < bluepigEnemies.size(); i++) {
-            if (Math.abs(bluepigEnemies.elementAt(i).getInternalAngle() - 0.0) < 1.0) {
-                if (bluepigEnemies.elementAt(i).getCurrentFrame() < bluepigEnemies.elementAt(i).getMaxFrames() / 2) {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(6), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+        for (int i = 0; i < goombas.size(); i++) {
+            if (Math.abs(goombas.elementAt(i).getInternalAngle() - 0.0) < 1.0) {
+                if (goombas.elementAt(i).getCurrentFrame() < goombas.elementAt(i).getMaxFrames() / 2) {
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(6), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 } else {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(7), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(7), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 }
-                bluepigEnemies.elementAt(i).updateCurrentFrame();;
+                goombas.elementAt(i).updateCurrentFrame();;
             }
-            if(Math.abs(bluepigEnemies.elementAt(i).getInternalAngle() - pi) < 1.0) {
-                if (bluepigEnemies.elementAt(i).getCurrentFrame() < bluepigEnemies.elementAt(i).getMaxFrames() / 2) {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(4), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+            if(Math.abs(goombas.elementAt(i).getInternalAngle() - pi) < 1.0) {
+                if (goombas.elementAt(i).getCurrentFrame() < goombas.elementAt(i).getMaxFrames() / 2) {
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(4), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 } else {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(5), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(5), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 }
-                bluepigEnemies.elementAt(i).updateCurrentFrame();
+                goombas.elementAt(i).updateCurrentFrame();
             }
-            if (Math.abs(bluepigEnemies.elementAt(i).getInternalAngle() - halfPi) < 1.0) {
-                if (bluepigEnemies.elementAt(i).getCurrentFrame() < bluepigEnemies.elementAt(i).getMaxFrames() / 2) {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(2), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+            if (Math.abs(goombas.elementAt(i).getInternalAngle() - halfPi) < 1.0) {
+                if (goombas.elementAt(i).getCurrentFrame() < goombas.elementAt(i).getMaxFrames() / 2) {
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(2), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 } else {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(3), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(3), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 }
-                bluepigEnemies.elementAt(i).updateCurrentFrame();
+                goombas.elementAt(i).updateCurrentFrame();
             }
-            if (Math.abs(bluepigEnemies.elementAt(i).getInternalAngle() - threehavlesPi) < 1.0) {
-                if (bluepigEnemies.elementAt(i).getCurrentFrame() < bluepigEnemies.elementAt(i).getMaxFrames() / 2) {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(0), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+            if (Math.abs(goombas.elementAt(i).getInternalAngle() - threehavlesPi) < 1.0) {
+                if (goombas.elementAt(i).getCurrentFrame() < goombas.elementAt(i).getMaxFrames() / 2) {
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(0), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 } else {
-                    g2D.drawImage(rotateImageObject(bluepigEnemies.elementAt(i)).filter(bluepigEnemy.elementAt(1), null),
-                            (int)(bluepigEnemies.elementAt(i).getX() + 0.5),
-                            (int)(bluepigEnemies.elementAt(i).getY() + 0.5), null);
+                    g2D.drawImage(rotateImageObject(goombas.elementAt(i)).filter(goomba.elementAt(1), null),
+                            (int)(goombas.elementAt(i).getX() + 0.5),
+                            (int)(goombas.elementAt(i).getY() + 0.5), null);
                 }
-                bluepigEnemies.elementAt(i).updateCurrentFrame();
+                goombas.elementAt(i).updateCurrentFrame();
             }
         }
     }
