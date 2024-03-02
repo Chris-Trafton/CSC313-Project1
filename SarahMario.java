@@ -32,12 +32,12 @@ public class SarahMario {
 
     private static Vector<Vector<Vector<ImageObject>>> walls;
 
-    private static BufferedImage player;
-    private static BufferedImage[] link;
-    private static BufferedImage leftHeartOutline;
-    private static BufferedImage rightHeartOutline;
-    private static BufferedImage leftHeart;
-    private static BufferedImage rightHeart;
+    private static BufferedImage mario;
+//    private static BufferedImage[] link;
+//    private static BufferedImage leftHeartOutline;
+//    private static BufferedImage rightHeartOutline;
+//    private static BufferedImage leftHeart;
+//    private static BufferedImage rightHeart;
     private static Vector<BufferedImage> goomba;
     private static Vector<ImageObject> goombas;
     private static Vector<ImageObject> bubblebossEnemies;
@@ -124,12 +124,12 @@ public class SarahMario {
 
         try {
             background = ImageIO.read(new File("images\\World_1.png"));
-
+            mario = ImageIO.read(new File("images\\Mario.png"));
             // Link's images
-            link = new BufferedImage[]{ImageIO.read(new File("images\\Orange0.png")), ImageIO.read(new File("images\\Orange1.png")),
-                    ImageIO.read(new File("images\\Orange2.png")), ImageIO.read(new File("images\\Orange3.png")),
-                    ImageIO.read(new File("images\\Orange4.png")), ImageIO.read(new File("images\\Orange5.png")),
-                    ImageIO.read(new File("images\\Orange6.png")), ImageIO.read(new File("images\\Orange7.png"))};
+//            link = new BufferedImage[]{ImageIO.read(new File("images\\Orange0.png")), ImageIO.read(new File("images\\Orange1.png")),
+//                    ImageIO.read(new File("images\\Orange2.png")), ImageIO.read(new File("images\\Orange3.png")),
+//                    ImageIO.read(new File("images\\Orange4.png")), ImageIO.read(new File("images\\Orange5.png")),
+//                    ImageIO.read(new File("images\\Orange6.png")), ImageIO.read(new File("images\\Orange7.png"))};
 
             // setting up the Koholint Island walls and their collisions
             walls = new Vector<Vector<Vector<ImageObject>>>(); // diff version of ImageObj than Asteroids
@@ -160,7 +160,7 @@ public class SarahMario {
                 }
             }
 
-            player = ImageIO.read(new File("images\\Orange0.png"));
+//            player = ImageIO.read(new File("images\\Orange0.png"));
 
             // BluePig Enemy's images
             goombas = new Vector<ImageObject>();
@@ -174,10 +174,10 @@ public class SarahMario {
 //            bubblebossEnemies = new Vector<ImageObject>();
 
             // Health images
-            leftHeartOutline = ImageIO.read(new File("images\\Small_Heart_LeftHalf.png"));
-            rightHeartOutline = ImageIO.read(new File("images\\Small_Heart_RightHalf.png"));
-            leftHeart = ImageIO.read(new File("images\\Small_Heart_ActLeftOutline.png"));
-            rightHeart = ImageIO.read(new File("images\\Small_Heart_RightOutline.png"));
+//            leftHeartOutline = ImageIO.read(new File("images\\Small_Heart_LeftHalf.png"));
+//            rightHeartOutline = ImageIO.read(new File("images\\Small_Heart_RightHalf.png"));
+//            leftHeart = ImageIO.read(new File("images\\Small_Heart_ActLeftOutline.png"));
+//            rightHeart = ImageIO.read(new File("images\\Small_Heart_RightOutline.png"));
 
         } catch (IOException ioe) { }
 
@@ -190,7 +190,7 @@ public class SarahMario {
                 enemyDraw();
 //                enemiesDraw();
                 playerDraw();
-                healthDraw();
+//                healthDraw();
 
                 try {
                     Thread.sleep(32);
@@ -206,7 +206,7 @@ public class SarahMario {
 
         for (int i = 0; i < goombas.size(); i++) {
             goombas.elementAt(i).setMaxFrames(10);
-            g2D.drawImage(goomba.elementAt(0), WINHEIGHT - XOFFSET*2, YOFFSET, null);
+            g2D.drawImage(goomba.elementAt(0), 180, YOFFSET, null);
         }
 
 
@@ -259,10 +259,11 @@ public class SarahMario {
                 } catch (InterruptedException e) { }
 
                 if (upPressed || downPressed || leftPressed || rightPressed) {
-                    p1velocityY = velocitystepY;
+                    p1velocityY = 12;
+                    //                    p1velocityY = velocitystepY;
                     p1velocityX = velocitystepX;
-                    if (p1velocityY > 5) {
-                        p1velocityY = 5;
+                    if (p1velocityY > 12) {
+                        p1velocityY = 12;
                     }
                     if (p1velocityX > 5) {
                         p1velocityX = 5;
@@ -312,17 +313,22 @@ public class SarahMario {
                 p1.updateBounce();
                 // the 0.25 is the gravity
                 // if statement is to stop player from getting pinned to the ground
+               if (p1.getX() > 250 && rightPressed) {
+                   p1velocityX = 0;
+               } else if (p1.getX() < 88 && leftPressed) {
+                    p1velocityX = 0;
+               }
                 if (p1.getY() < 220) {
-                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.5);
+                    p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()) + 0.75);
                 } else {
                     p1.move(p1velocityX * Math.cos(p1.getInternalAngle()), p1velocityY * Math.sin(p1.getInternalAngle()));
                 }
-                int wrap = p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
-//                backgroundState = bgWrap(backgroundState, wrap);
-                if (wrap != 0) {
-//                    clearEnemies();
-                    generateEnemies(backgroundState);
-                }
+//                int wrap = p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
+////                backgroundState = bgWrap(backgroundState, wrap);
+//                if (wrap != 0) {
+////                    clearEnemies();
+//                    generateEnemies(backgroundState);
+//                }
             }
         }
     }
@@ -344,11 +350,11 @@ public class SarahMario {
     }
 
     private static class EnemyMover implements Runnable {
-        private double bluepigvelocitystep;
-        private double bluepigvelocity;
+        private double goombavelocitystep;
+        private double goombavelocity;
 
         public EnemyMover() {
-            bluepigvelocitystep = 2;
+            goombavelocitystep = 2;
         }
 
         public void run() {
@@ -365,27 +371,27 @@ public class SarahMario {
                     for (int i = 0; i < goombas.size(); i++) {
                         int state = randomNumbers.nextInt(1000);
                         if (state < 5) {
-                            bluepigvelocity = bluepigvelocitystep;
+                            goombavelocity = goombavelocitystep;
                             goombas.elementAt(i).setInternalAngle(0);
                         } else if (state < 10) {
-                            bluepigvelocity = bluepigvelocitystep;
+                            goombavelocity = goombavelocitystep;
                             goombas.elementAt(i).setInternalAngle(halfPi);
                         } else if (state < 15) {
-                            bluepigvelocity = bluepigvelocitystep;
+                            goombavelocity = goombavelocitystep;
                             goombas.elementAt(i).setInternalAngle(pi);
                         } else if (state < 20) {
-                            bluepigvelocity = bluepigvelocitystep;
+                            goombavelocity = goombavelocitystep;
                             goombas.elementAt(i).setInternalAngle(threehavlesPi);
                         } else if (state < 250) {
-                            bluepigvelocity = bluepigvelocitystep;
+                            goombavelocity = goombavelocitystep;
                         } else {
-                            bluepigvelocity = 0;
+                            goombavelocity = 0;
                         }
 
                         goombas.elementAt(i).updateBounce();
-                        goombas.elementAt(i).move(bluepigvelocity *
+                        goombas.elementAt(i).move(goombavelocity *
                                         Math.cos(goombas.elementAt(i).getInternalAngle()),
-                                bluepigvelocity * Math.sin(goombas.elementAt(i).getInternalAngle()));
+                                goombavelocity * Math.sin(goombas.elementAt(i).getInternalAngle()));
                     }
 
 //                    for (int i = 0; i < bubblebossEnemies.size(); i++) {
@@ -398,32 +404,32 @@ public class SarahMario {
         }
     }
 
-    private static class HealthTracker implements Runnable {
-        public void run() {
-            while (endgame == false) {
-                Long currTime = Long.valueOf(System.currentTimeMillis()); // was new Long(System.currentTimeMillis())
-                if (availableToDropLife && p1.getDropLife() > 0) {
-                    int newLife = p1.getLife() - p1.getDropLife();
-                    p1.setDropLife(0);
-                    availableToDropLife = false;
-
-                    lastDropLife = System.currentTimeMillis();
-                    p1.setLife(newLife);
-
-                    try {
-                        AudioInputStream ais = AudioSystem.getAudioInputStream(new File("hurt.wav").getAbsoluteFile());
-                        Clip hurtclip = AudioSystem.getClip();
-                        hurtclip.open(ais);
-                        hurtclip.start();
-                    } catch (Exception e) { }
-                } else {
-                    if (currTime - lastDropLife > dropLifeLifetime) {
-                        availableToDropLife = true;
-                    }
-                }
-            }
-        }
-    }
+//    private static class HealthTracker implements Runnable {
+//        public void run() {
+//            while (endgame == false) {
+//                Long currTime = Long.valueOf(System.currentTimeMillis()); // was new Long(System.currentTimeMillis())
+//                if (availableToDropLife && p1.getDropLife() > 0) {
+//                    int newLife = p1.getLife() - p1.getDropLife();
+//                    p1.setDropLife(0);
+//                    availableToDropLife = false;
+//
+//                    lastDropLife = System.currentTimeMillis();
+//                    p1.setLife(newLife);
+//
+//                    try {
+//                        AudioInputStream ais = AudioSystem.getAudioInputStream(new File("hurt.wav").getAbsoluteFile());
+//                        Clip hurtclip = AudioSystem.getClip();
+//                        hurtclip.open(ais);
+//                        hurtclip.start();
+//                    } catch (Exception e) { }
+//                } else {
+//                    if (currTime - lastDropLife > dropLifeLifetime) {
+//                        availableToDropLife = true;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public static class Gravity implements Runnable {
         public void run() {
@@ -516,8 +522,15 @@ public class SarahMario {
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-
         g2D.drawImage(background, XOFFSET, YOFFSET, null);
+        System.out.println(XOFFSET);
+        // scrolling mechanism
+        if (p1.getX() > 250 && rightPressed) {
+            XOFFSET -= 10;
+//            g2D.drawImage(background, XOFFSET + 100, YOFFSET, null);
+        } else if (p1.getX() < 88 && leftPressed) {
+            XOFFSET += 10;
+        }
 
     }
 
@@ -530,11 +543,14 @@ public class SarahMario {
             if (upPressed == true) {
                 if (p1.getCurrentFrame() < 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[0], null),
-                    g2D.drawImage(link[0],
-                            (int) (p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+//                    g2D.drawImage(link[0],
+//                            (int) (p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario, (int) (p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() > 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[1], null),
-                    g2D.drawImage(link[1],
+//                    g2D.drawImage(link[1],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
@@ -542,11 +558,15 @@ public class SarahMario {
             if (downPressed == true) {
                 if (p1.getCurrentFrame() < 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[2], null),
-                    g2D.drawImage(link[2],
+//                    g2D.drawImage(link[2],
+//                            (int)(p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() > 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[3], null),
-                    g2D.drawImage(link[3],
+//                    g2D.drawImage(link[3],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
@@ -555,11 +575,15 @@ public class SarahMario {
                 if (p1.getCurrentFrame() < 5) {
 
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[4], null),
-                    g2D.drawImage(link[4],
+//                    g2D.drawImage(link[4],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() > 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[5], null),
-                    g2D.drawImage(link[5],
+//                    g2D.drawImage(link[5],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
@@ -567,11 +591,15 @@ public class SarahMario {
             if (rightPressed == true) {
                 if (p1.getCurrentFrame() < 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[6], null),
-                    g2D.drawImage(link[6],
+//                    g2D.drawImage(link[6],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 } else if (p1.getCurrentFrame() > 5) {
 //                    g2D.drawImage(rotateImageObject(p1).filter(link[7], null),
-                    g2D.drawImage(link[7],
+//                    g2D.drawImage(link[7],
+//                            (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                    g2D.drawImage(mario,
                             (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
                 }
                 p1.updateCurrentFrame();
@@ -579,22 +607,30 @@ public class SarahMario {
         } else {
             if (Math.abs(lastPressed - 90.0) < 1.0) {
 //                g2D.drawImage(rotateImageObject(p1).filter(link[0], null),
-                g2D.drawImage(link[0],
+//                g2D.drawImage(link[0],
+//                        (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                g2D.drawImage(mario,
                         (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
             }
             if (Math.abs(lastPressed - 270.0) < 1.0) {
 //                g2D.drawImage(rotateImageObject(p1).filter(link[2], null),
-                g2D.drawImage(link[2],
+//                g2D.drawImage(link[2],
+//                        (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                g2D.drawImage(mario,
                         (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
             }
             if (Math.abs(lastPressed - 0.0) < 1.0) {
 //                g2D.drawImage(rotateImageObject(p1).filter(link[6], null),
-                g2D.drawImage(link[6],
+//                g2D.drawImage(link[6],
+//                        (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                g2D.drawImage(mario,
                         (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
             }
             if (Math.abs(lastPressed - 180.0) < 1.0) {
 //                g2D.drawImage(rotateImageObject(p1).filter(link[4], null),
-                g2D.drawImage(link[4],
+//                g2D.drawImage(link[4],
+//                        (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
+                g2D.drawImage(mario,
                         (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
             }
         }
@@ -602,41 +638,41 @@ public class SarahMario {
         // g2D.drawImage(rotateImageObject(p1).filter(player, null), (int)(p1.getX() + 0.5), (int)(p1.getY() + 0.5), null);
     }
 
-    private static void healthDraw() {
-        Graphics g = appFrame.getGraphics();
-        Graphics2D g2D = (Graphics2D) g;
-
-        int leftscale = 10;
-        int leftoffset = 10;
-        int rightoffset = 9;
-        int interioroffset = 2;
-        int halfinterioroffset = 1;
-        for (int i = 0; i < p1.getMaxLife(); i++) {
-            if (i % 2 == 0) {
-                g2D.drawImage(leftHeartOutline, leftscale * i + leftoffset + XOFFSET, YOFFSET, null);
-//                g2D.drawImage(rotateImageObject(p1).filter(leftHeartOutline, null),
-//                        leftscale * i + leftoffset + XOFFSET, YOFFSET, null);
-            } else {
-                g2D.drawImage(rightHeartOutline, leftscale * i + rightoffset + XOFFSET, YOFFSET, null);
-//                g2D.drawImage(rotateImageObject(p1).filter(rightHeartOutline, null),
-//                        leftscale * i + rightoffset + XOFFSET, YOFFSET, null);
-            }
-        }
-
-        for (int i = 0; i < p1.getLife(); i++) {
-            if (i % 2 == 0) {
-                g2D.drawImage(leftHeart, leftscale * i + leftoffset + interioroffset + XOFFSET,
-                        interioroffset + YOFFSET, null);
-//                g2D.drawImage(rotateImageObject(p1).filter(leftHeart, null),
-//                        leftscale * i + leftoffset + interioroffset + XOFFSET, interioroffset + YOFFSET, null);
-            } else {
-                g2D.drawImage(rightHeart, leftscale * i + leftoffset - halfinterioroffset + XOFFSET,
-                        interioroffset + YOFFSET, null);
-//                g2D.drawImage(rotateImageObject(p1).filter(rightHeart, null),
-//                        leftscale * i + leftoffset - halfinterioroffset + XOFFSET, interioroffset + YOFFSET, null);
-            }
-        }
-    }
+//    private static void healthDraw() {
+//        Graphics g = appFrame.getGraphics();
+//        Graphics2D g2D = (Graphics2D) g;
+//
+//        int leftscale = 10;
+//        int leftoffset = 10;
+//        int rightoffset = 9;
+//        int interioroffset = 2;
+//        int halfinterioroffset = 1;
+//        for (int i = 0; i < p1.getMaxLife(); i++) {
+//            if (i % 2 == 0) {
+//                g2D.drawImage(leftHeartOutline, leftscale * i + leftoffset + XOFFSET, YOFFSET, null);
+////                g2D.drawImage(rotateImageObject(p1).filter(leftHeartOutline, null),
+////                        leftscale * i + leftoffset + XOFFSET, YOFFSET, null);
+//            } else {
+//                g2D.drawImage(rightHeartOutline, leftscale * i + rightoffset + XOFFSET, YOFFSET, null);
+////                g2D.drawImage(rotateImageObject(p1).filter(rightHeartOutline, null),
+////                        leftscale * i + rightoffset + XOFFSET, YOFFSET, null);
+//            }
+//        }
+//
+//        for (int i = 0; i < p1.getLife(); i++) {
+//            if (i % 2 == 0) {
+//                g2D.drawImage(leftHeart, leftscale * i + leftoffset + interioroffset + XOFFSET,
+//                        interioroffset + YOFFSET, null);
+////                g2D.drawImage(rotateImageObject(p1).filter(leftHeart, null),
+////                        leftscale * i + leftoffset + interioroffset + XOFFSET, interioroffset + YOFFSET, null);
+//            } else {
+//                g2D.drawImage(rightHeart, leftscale * i + leftoffset - halfinterioroffset + XOFFSET,
+//                        interioroffset + YOFFSET, null);
+////                g2D.drawImage(rotateImageObject(p1).filter(rightHeart, null),
+////                        leftscale * i + leftoffset - halfinterioroffset + XOFFSET, interioroffset + YOFFSET, null);
+//            }
+//        }
+//    }
 
     private static void enemiesDraw() {
         Graphics g = appFrame.getGraphics();
@@ -703,6 +739,14 @@ public class SarahMario {
         public void actionPerformed(ActionEvent e) {
             if (action.equals("UP")) {
                 upPressed = true;
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                upPressed = false;
+
                 lastPressed = 90.0;
             }
             if (action.equals("DOWN")) {
@@ -760,8 +804,8 @@ public class SarahMario {
             availableToDropLife = true;
 
             try {
-//                clearEnemies();
-//                generateEnemies(backgroundState);
+                clearEnemies();
+                generateEnemies(backgroundState);
             } catch (java.lang.NullPointerException jlnpe) { }
 
             p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0);
@@ -786,15 +830,15 @@ public class SarahMario {
             Thread t2 = new Thread(new PlayerMover());
             Thread t3 = new Thread(new CollisionChecker());
             Thread t4 = new Thread(new AudioLooper());
-//            Thread t5 = new Thread(new EnemyMover());
-            Thread t6 = new Thread(new HealthTracker());
+            Thread t5 = new Thread(new EnemyMover());
+//            Thread t6 = new Thread(new HealthTracker());
             Thread t7 = new Thread(new Gravity());
             t1.start();
             t2.start();
             t3.start();
             t4.start();
-//            t5.start();
-            t6.start();
+            t5.start();
+//            t6.start();
             t7.start();
         }
     }
